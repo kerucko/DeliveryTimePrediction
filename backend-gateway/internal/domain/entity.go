@@ -10,3 +10,8 @@ type Task struct {
 	PreparationTime   int     `json:"preparation_time"`
 	CourierExperience float64 `json:"courier_experience"`
 }
+
+type Result struct {
+	ID           string  `json:"id"`
+	DeliveryTime float64 `json:"delivery_time"`
+}

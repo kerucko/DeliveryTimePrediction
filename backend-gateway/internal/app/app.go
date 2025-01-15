@@ -18,18 +18,20 @@ type Storage interface {
 }
 
 type MessageQueue interface {
-	Pub(ctx context.Context, task domain.Task) error
+	Publish(topic string, data []byte) error
 }
 
 type App struct {
 	storage Storage
 	queue   MessageQueue
+	topic   string
 }
 
-func New(storage Storage, queue MessageQueue) *App {
+func New(storage Storage, queue MessageQueue, topic string) *App {
 	return &App{
 		storage: storage,
 		queue:   queue,
+		topic:   topic,
 	}
 }
 
@@ -63,7 +65,6 @@ func (a *App) GetResultHandler(w http.ResponseWriter, r *http.Request) {
 
 func (a *App) PostTaskHandler(w http.ResponseWriter, r *http.Request) {
 	op := "PostTaskHandler"
-	ctx := r.Context()
 
 	err := r.ParseForm()
 	if err != nil {
@@ -103,7 +104,14 @@ func (a *App) PostTaskHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = a.queue.Pub(ctx, task)
+	data, err := json.Marshal(task)
+	if err != nil {
+		log.Printf("error marshalling task: %v", err)
+		a.sendError(w, err, http.StatusInternalServerError)
+		return
+	}
+
+	err = a.queue.Publish(a.topic, data)
 	if err != nil {
 		log.Printf("error publishing task: %v", err)
 		w.WriteHeader(http.StatusInternalServerError)

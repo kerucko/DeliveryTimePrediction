@@ -44,9 +44,15 @@ func New(ctx context.Context, cfg config.PostgresConfig) (*Storage, error) {
 }
 
 func (s *Storage) GetResult(ctx context.Context, id string) (float64, error) {
-	request := `SELECT distance FROM results WHERE id = $1`
-	var distance float64
+	request := `SELECT delivery_time FROM results WHERE id = $1`
+	var deliveryTime float64
 
-	err := s.conn.QueryRow(ctx, request, id).Scan(&distance)
-	return distance, err
+	err := s.conn.QueryRow(ctx, request, id).Scan(&deliveryTime)
+	return deliveryTime, err
+}
+
+func (s *Storage) InsertResult(ctx context.Context, id string, deliveryTime float64) error {
+	request := `INSERT INTO results (id, delivery_time) VALUES ($1, $2)`
+	_, err := s.conn.Exec(ctx, request, id, deliveryTime)
+	return err
 }

@@ -2,7 +2,7 @@
 -- +goose StatementBegin
 CREATE TABLE if not exists results (
     id uuid primary key,
-    distance float
+    delivery_time float
 )
 -- +goose StatementEnd
 

@@ -24,14 +24,14 @@ type PostgresConfig struct {
 }
 
 type KafkaConfig struct {
-	KafkaAddrs    []KafkaAddr `yaml:"kafka_addrs"`
-	ConsumerGroup string      `yaml:"consumer_group"`
+	Brokers       []string     `yaml:"brokers"`
+	Topics        TopicsConfig `yaml:"topics"`
+	ConsumerGroup string       `yaml:"consumer_group"`
 }
 
-type KafkaAddr struct {
-	Host  string `yaml:"host"`
-	Port  string `yaml:"port"`
-	Topic string `yaml:"topic"`
+type TopicsConfig struct {
+	Completed string `yaml:"completed"`
+	Tasks     string `yaml:"tasks"`
 }
 
 type ServerConfig struct {

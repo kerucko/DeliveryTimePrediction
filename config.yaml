@@ -6,10 +6,11 @@ postgres:
   dbname: postgres
   timeout: 30s
 kafka:
-  consumer_group: consumer-group
-  kafka_addrs:
-    - host: kafka
-      port: 29092
-      topic: tasks
+  brokers:
+    - kafka:29092
+  topics:
+    completed: completed
+    tasks: tasks
+  consumer_group: group
 server:
   port: 7001
