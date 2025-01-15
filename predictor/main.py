@@ -12,14 +12,14 @@ app = FastAPI()
 
 
 class DeliveryRequest(BaseModel):
-    Order_ID: str
-    Distance_km: float
-    Weather: str
-    Traffic_Level: str
-    Time_of_Day: str
-    Vehicle_Type: str
-    Preparation_Time_min: int
-    Courier_Experience_yrs: float
+    id: str
+    distance_km: float
+    weather: str
+    traffic_Level: str
+    time_of_day: str
+    vehicle_type: str
+    preparation_time_min: int
+    courier_experience_yrs: float
 
 
 MODEL_PATH = "delivery_time_model.pkl"
@@ -59,19 +59,19 @@ def process_kafka_messages(consumer, producer, model):
             delivery_request = DeliveryRequest(**data)
 
             input_data = pd.DataFrame([{
-                'Distance_km': delivery_request.Distance_km,
-                'Weather': delivery_request.Weather,
-                'Traffic_Level': delivery_request.Traffic_Level,
-                'Time_of_Day': delivery_request.Time_of_Day,
-                'Vehicle_Type': delivery_request.Vehicle_Type,
-                'Preparation_Time_min': delivery_request.Preparation_Time_min,
-                'Courier_Experience_yrs': delivery_request.Courier_Experience_yrs
+                'distance_km': delivery_request.distance_km,
+                'weather': delivery_request.weather,
+                'traffic_level': delivery_request.traffic_Level,
+                'time_of_day': delivery_request.time_of_day,
+                'vehicle_type': delivery_request.vehicle_type,
+                'preparation_time_min': delivery_request.preparation_time_min,
+                'courier_experience_yrs': delivery_request.courier_experience_yrs
             }])
 
             prediction = model.predict(input_data)[0]
             result = {
-                "Order_ID": delivery_request.Order_ID, 
-                "predicted_delivery_time": float(prediction)
+                "id": delivery_request.Order_ID, 
+                "delivery_time": float(prediction)
             }
 
 
