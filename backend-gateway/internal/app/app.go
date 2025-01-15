@@ -2,7 +2,6 @@ package app
 
 import (
 	"context"
-	"database/sql"
 	"encoding/json"
 	"errors"
 	"log"
@@ -10,6 +9,8 @@ import (
 	"strconv"
 
 	"DeliveryTimePrediction/internal/domain"
+
+	"github.com/jackc/pgx/v4"
 )
 
 type Storage interface {
@@ -33,6 +34,7 @@ func New(storage Storage, queue MessageQueue) *App {
 }
 
 func (a *App) GetResultHandler(w http.ResponseWriter, r *http.Request) {
+	op := "GetResultHandler"
 	ctx := r.Context()
 
 	w.Header().Set("Access-Control-Allow-Origin", "*")
@@ -40,12 +42,12 @@ func (a *App) GetResultHandler(w http.ResponseWriter, r *http.Request) {
 
 	id := r.URL.Query().Get("id")
 	distance, err := a.storage.GetResult(ctx, id)
-	if errors.Is(err, sql.ErrNoRows) {
+	if errors.Is(err, pgx.ErrNoRows) {
 		w.WriteHeader(http.StatusNotFound)
 		return
 	}
 	if err != nil {
-		log.Printf("error getting result: %v", err)
+		log.Printf("%s. error getting result: %v", op, err)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
@@ -53,18 +55,19 @@ func (a *App) GetResultHandler(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 	err = json.NewEncoder(w).Encode(distance)
 	if err != nil {
-		log.Printf("error encoding result: %v", err)
+		log.Printf("%s. error encoding result: %v", op, err)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 }
 
 func (a *App) PostTaskHandler(w http.ResponseWriter, r *http.Request) {
+	op := "PostTaskHandler"
 	ctx := r.Context()
 
 	err := r.ParseForm()
 	if err != nil {
-		log.Printf("error parsing form: %v", err)
+		log.Printf("%s. error parsing form: %v", op, err)
 		a.sendError(w, err, http.StatusBadRequest)
 		return
 	}

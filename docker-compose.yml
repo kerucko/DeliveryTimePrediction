@@ -19,17 +19,17 @@ services:
         condition: service_healthy
         restart: true
 
-  predictor:
-    container_name: predictor
-    build:
-      context: .
-      dockerfile: ./predictor/Dockerfile
-    ports:
-      - "8001:8001"
-    depends_on:
-      kafka0:
-        condition: service_healthy
-        restart: true
+  # predictor:
+  #   container_name: predictor
+  #   build:
+  #     context: .
+  #     dockerfile: ./predictor/Dockerfile
+  #   ports:
+  #     - "8001:8001"
+  #   depends_on:
+  #     kafka0:
+  #       condition: service_healthy
+  #       restart: true
 
   db:
     container_name: db
@@ -44,9 +44,9 @@ services:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U user" ]
-      interval: 15s
-      timeout: 15s
+      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
+      interval: 3s
+      timeout: 20s
       retries: 10
       start_period: 5s
 
