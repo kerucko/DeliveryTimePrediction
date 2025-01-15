@@ -1,3 +1,3 @@
-module github.com/kerucko/DescriptionGenerator
+module DeliveryTimePrediction
 
 go 1.23.1

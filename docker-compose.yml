@@ -1,5 +1,8 @@
 version: '3.1'
 
+volumes:
+  postgresql_data:
+
 services:
   gateway:
     container_name: gateway
@@ -12,18 +15,40 @@ services:
       kafka0:
         condition: service_healthy
         restart: true
+      db:
+        condition: service_healthy
+        restart: true
 
-  generator:
-    container_name: generator
+  predictor:
+    container_name: predictor
     build:
       context: .
-      dockerfile: ./generator/Dockerfile
+      dockerfile: ./predictor/Dockerfile
     ports:
       - "8001:8001"
     depends_on:
       kafka0:
         condition: service_healthy
         restart: true
+
+  db:
+    container_name: db
+    image: postgres:15-alpine
+    ports:
+      - "5432:5432"
+    restart: always
+    volumes:
+      - postgresql_data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_DB=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U user" ]
+      interval: 15s
+      timeout: 15s
+      retries: 10
+      start_period: 5s
 
   kafka-ui:
     container_name: kafka-ui
