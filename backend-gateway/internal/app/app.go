@@ -10,6 +10,7 @@ import (
 
 	"DeliveryTimePrediction/internal/domain"
 
+	"github.com/go-chi/chi/v5"
 	"github.com/hashicorp/go-uuid"
 	"github.com/jackc/pgx/v4"
 )
@@ -43,7 +44,7 @@ func (a *App) GetResultHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Content-Type", "application/json")
 
-	id := r.URL.Query().Get("id")
+	id := chi.URLParam(r, "id")
 	distance, err := a.storage.GetResult(ctx, id)
 	if errors.Is(err, pgx.ErrNoRows) {
 		w.WriteHeader(http.StatusNotFound)
@@ -76,6 +77,7 @@ func (a *App) PostTaskHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var task domain.Task
+	task.ID = r.Form.Get("id")
 	task.Weather = r.Form.Get("weather")
 	task.TrafficLevel = r.Form.Get("traffic_level")
 	task.TimeOfDay = r.Form.Get("time_of_day")

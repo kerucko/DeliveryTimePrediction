@@ -13,13 +13,13 @@ app = FastAPI()
 
 class DeliveryRequest(BaseModel):
     id: str
-    distance_km: float
+    distance: float
     weather: str
-    traffic_Level: str
+    traffic_level: str
     time_of_day: str
     vehicle_type: str
-    preparation_time_min: int
-    courier_experience_yrs: float
+    preparation_time: int
+    courier_experience: float
 
 
 MODEL_PATH = "delivery_time_model.pkl"
@@ -59,24 +59,24 @@ def process_kafka_messages(consumer, producer, model):
             delivery_request = DeliveryRequest(**data)
 
             input_data = pd.DataFrame([{
-                'distance_km': delivery_request.distance_km,
-                'weather': delivery_request.weather,
-                'traffic_level': delivery_request.traffic_Level,
-                'time_of_day': delivery_request.time_of_day,
-                'vehicle_type': delivery_request.vehicle_type,
-                'preparation_time_min': delivery_request.preparation_time_min,
-                'courier_experience_yrs': delivery_request.courier_experience_yrs
+                'Distance_km': delivery_request.distance,
+                'Weather': delivery_request.weather,
+                'Traffic_Level': delivery_request.traffic_level,
+                'Time_of_Day': delivery_request.time_of_day,
+                'Vehicle_Type': delivery_request.vehicle_type,
+                'Preparation_Time_min': delivery_request.preparation_time,
+                'Courier_Experience_yrs': delivery_request.courier_experience
             }])
 
             prediction = model.predict(input_data)[0]
             result = {
-                "id": delivery_request.Order_ID, 
+                "id": delivery_request.id, 
                 "delivery_time": float(prediction)
             }
 
 
             producer.send(OUTPUT_TOPIC, result)
-            logging.info(f"Delivery time for order {delivery_request.Order_ID} sent to Kafka.")
+            logging.info(f"Delivery time for order {delivery_request.id} sent to Kafka.")
         
         except Exception as e:
             logging.error(f"Error processing message: {e}")

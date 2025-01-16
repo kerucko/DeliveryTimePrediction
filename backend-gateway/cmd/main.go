@@ -53,7 +53,7 @@ func main() {
 	router.Use(middleware.Logger)
 
 	router.Post("/task", service.PostTaskHandler)
-	router.Get("/check", service.GetResultHandler)
+	router.Get("/check/{id}", service.GetResultHandler)
 
 	log.Fatal(http.ListenAndServe("[::]:"+cfg.Server.Port, router))
 	wg.Wait()
