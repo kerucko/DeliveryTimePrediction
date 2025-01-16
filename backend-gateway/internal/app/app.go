@@ -77,7 +77,6 @@ func (a *App) PostTaskHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var task domain.Task
-	task.ID = r.Form.Get("id")
 	task.Weather = r.Form.Get("weather")
 	task.TrafficLevel = r.Form.Get("traffic_level")
 	task.TimeOfDay = r.Form.Get("time_of_day")
