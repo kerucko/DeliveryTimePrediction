@@ -20,16 +20,16 @@ services:
         restart: true
 
   predictor:
-     container_name: predictor
-     build:
-       context: .
-       dockerfile: ./predictor/Dockerfile
-     ports:
-       - "8001:8001"
-     depends_on:
-       kafka0:
-         condition: service_healthy
-         restart: true
+    container_name: predictor
+    build:
+      context: .
+      dockerfile: ./predictor/Dockerfile
+    ports:
+      - "8001:8001"
+    depends_on:
+      kafka0:
+        condition: service_healthy
+        restart: true
 
   db:
     container_name: db
