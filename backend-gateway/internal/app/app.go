@@ -65,13 +65,16 @@ func (a *App) GetResultHandler(w http.ResponseWriter, r *http.Request) {
 
 func (a *App) PostTaskHandler(w http.ResponseWriter, r *http.Request) {
 	op := "PostTaskHandler"
+	var err error
 
-	err := r.ParseForm()
+	err = r.ParseMultipartForm(10 << 20)
 	if err != nil {
 		log.Printf("%s. error parsing form: %v", op, err)
 		a.sendError(w, err, http.StatusBadRequest)
 		return
 	}
+
+	log.Println(r.Form)
 
 	var task domain.Task
 	task.Weather = r.Form.Get("weather")
@@ -80,40 +83,40 @@ func (a *App) PostTaskHandler(w http.ResponseWriter, r *http.Request) {
 	task.VehicleType = r.Form.Get("vehicle_type")
 	task.Distance, err = strconv.ParseFloat(r.Form.Get("distance"), 64)
 	if err != nil {
-		log.Printf("error parsing form: %v", err)
+		log.Printf("%s. error parsing form, distance: %v", op, err)
 		a.sendError(w, err, http.StatusBadRequest)
 		return
 	}
 	task.PreparationTime, err = strconv.Atoi(r.Form.Get("preparation_time"))
 	if err != nil {
-		log.Printf("error parsing form: %v", err)
+		log.Printf("%s. error parsing form, preparation_time: %v", op, err)
 		a.sendError(w, err, http.StatusBadRequest)
 		return
 	}
 	task.CourierExperience, err = strconv.ParseFloat(r.Form.Get("courier_experience"), 64)
 	if err != nil {
-		log.Printf("error parsing form: %v", err)
+		log.Printf("%s. error parsing form, courier_experience: %v", op, err)
 		a.sendError(w, err, http.StatusBadRequest)
 		return
 	}
 
 	err = a.validateTask(task)
 	if err != nil {
-		log.Printf("error validating task: %v", err)
+		log.Printf("%s. error validating task: %v", op, err)
 		a.sendError(w, err, http.StatusBadRequest)
 		return
 	}
 
 	data, err := json.Marshal(task)
 	if err != nil {
-		log.Printf("error marshalling task: %v", err)
+		log.Printf("%s. error marshalling task: %v", op, err)
 		a.sendError(w, err, http.StatusInternalServerError)
 		return
 	}
 
 	err = a.queue.Publish(a.topic, data)
 	if err != nil {
-		log.Printf("error publishing task: %v", err)
+		log.Printf("%s. error publishing task: %v", op, err)
 		w.WriteHeader(http.StatusInternalServerError)
 	}
 }
