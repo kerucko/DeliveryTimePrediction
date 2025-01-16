@@ -10,6 +10,7 @@ import (
 
 	"DeliveryTimePrediction/internal/domain"
 
+	"github.com/hashicorp/go-uuid"
 	"github.com/jackc/pgx/v4"
 )
 
@@ -74,8 +75,6 @@ func (a *App) PostTaskHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	log.Println(r.Form)
-
 	var task domain.Task
 	task.Weather = r.Form.Get("weather")
 	task.TrafficLevel = r.Form.Get("traffic_level")
@@ -106,6 +105,15 @@ func (a *App) PostTaskHandler(w http.ResponseWriter, r *http.Request) {
 		a.sendError(w, err, http.StatusBadRequest)
 		return
 	}
+
+	task.ID, err = uuid.GenerateUUID()
+	if err != nil {
+		log.Printf("%s. error generating uuid: %v", op, err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	log.Printf("%s. task: %+v", op, task)
 
 	data, err := json.Marshal(task)
 	if err != nil {
