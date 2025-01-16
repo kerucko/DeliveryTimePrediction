@@ -127,6 +127,15 @@ func (a *App) PostTaskHandler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Printf("%s. error publishing task: %v", op, err)
 		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	err = json.NewEncoder(w).Encode(task.ID)
+	if err != nil {
+		log.Printf("%s. error encoding task id: %v", op, err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
 	}
 }
 

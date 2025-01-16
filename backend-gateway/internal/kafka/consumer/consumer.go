@@ -9,6 +9,8 @@ import (
 	"github.com/IBM/sarama"
 )
 
+const op = "[consumer-group]"
+
 type ConsumerGroup struct {
 	sarama.ConsumerGroup
 	handler sarama.ConsumerGroupHandler
@@ -19,14 +21,14 @@ func (c *ConsumerGroup) Run(ctx context.Context, wg *sync.WaitGroup) {
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		log.Println("[consumer-group] run")
+		log.Printf("%s run", op)
 
 		for {
 			if err := c.ConsumerGroup.Consume(ctx, c.topics, c.handler); err != nil {
-				log.Printf("Error from consume: %v\n", err)
+				log.Printf("%s Error from consume: %v\n", op, err)
 			}
 			if ctx.Err() != nil {
-				log.Printf("[consumer-group]: ctx closed: %s\n", ctx.Err().Error())
+				log.Printf("%s ctx closed: %s\n", op, ctx.Err().Error())
 				return
 			}
 		}

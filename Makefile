@@ -22,11 +22,11 @@ deps:
 	go install github.com/pressly/goose/v3/cmd/goose@latest
 
 
-migrate:
+migrate-up:
 	goose -dir ./migrations postgres "postgres://postgres:postgres@localhost:5432/postgres?sslmode=disable" up
 
-down:
-	goose -dir ./migrations postgres "user=postgres dbname=postgres password=postgres host=localhost:5432" down
+migrate-down:
+	goose -dir ./migrations postgres "postgres://postgres:postgres@localhost:5432/postgres?sslmode=disable" down
 
-reset:
-	goose -dir ./migrations postgres "user=postgres dbname=postgres password=postgres host=localhost:5432" reset
+migrate-reset:
+	goose -dir ./migrations postgres "postgres://postgres:postgres@localhost:5432/postgres?sslmode=disable" reset
